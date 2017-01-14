@@ -112,8 +112,16 @@ func (sci *Scintilla) AddText(text string) {
 
 /*
 void 		gtk_scintilla_add_styled_text (GtkScintilla *sci, guint length, const gchar *styled_text);
-void 		gtk_scintilla_insert_text (GtkScintilla *sci, gint pos, const gchar *text);
-void 		gtk_scintilla_clear_all (GtkScintilla *sci);
+*/
+
+//void 		gtk_scintilla_insert_text (GtkScintilla *sci, gint pos, const gchar *text);
+func (sci *Scintilla) InsertText(pos int, text string) {
+	ptr := C.CString(text)
+	defer cfree(ptr)
+	C._gtk_scintilla_insert_text(sci.ToNativeScintilla (), guint (uint (pos)), gstring(ptr))
+}
+
+/*void 		gtk_scintilla_clear_all (GtkScintilla *sci);
 void 		gtk_scintilla_clear_document_style (GtkScintilla *sci);
 gint 		gtk_scintilla_get_length (GtkScintilla *sci);
 gchar 		gtk_scintilla_get_char_at (GtkScintilla *sci, guint pos);

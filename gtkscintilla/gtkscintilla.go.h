@@ -33,6 +33,9 @@ static GtkWidget* _gtk_scintilla_new() { return gtk_scintilla_new(); }
 static void _gtk_scintilla_add_text (GtkScintilla *sci, guint length, const gchar *text) {
   gtk_scintilla_add_text (GTK_SCINTILLA (sci), length, text);
 }
+static void _gtk_scintilla_insert_text (GtkScintilla *sci, guint pos, const gchar *text) {
+  gtk_scintilla_insert_text (GTK_SCINTILLA (sci), pos, text);
+}
 
 
 #endif
