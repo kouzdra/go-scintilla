@@ -3,7 +3,7 @@
 package gtk
 
 // #cgo pkg-config: gtk+-2.0
-// #cgo CFLAGS: -I../GtkScintilla/scintilla/include
+// #cgo CFLAGS: -I${SRCDIR}/../GtkScintilla/scintilla/include
 // #cgo LDFLAGS: -l gtkscintilla-1.0
 // #include "../GtkScintilla/src/gtkscintilla.h"
 // #include "../../../mattn/go-gtk/gtk/gtk.go.h"
