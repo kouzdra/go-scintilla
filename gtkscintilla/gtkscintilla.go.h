@@ -3,12 +3,10 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
-#include <../GtkScintilla/src/gtkscintilla.h>
-//#include <gtksourceview/gtksourcebuffer.h>
-//#include <gtksourceview/gtksourcelanguage.h>
-//#include <gtksourceview/gtksourcelanguagemanager.h>
-//#include <gtksourceview/gtksourcestyleschememanager.h>
 #include <stdlib.h>
+#define GTK
+#include <Scintilla.h>
+#include <ScintillaWidget.h>
 
 /*static inline gchar** make_strings(int count) {
 	return (gchar**)malloc(sizeof(gchar*) * count);
@@ -28,14 +26,14 @@ static inline char* toCstr(const gchar* s) { return (char*)s; }
 static inline gchar** nextGstr(gchar** s) { return (s+1); }
 static inline void freeCstr(char* s) { free(s); }
 */
-static GtkScintilla* toGtkScintilla(void* w) { return GTK_SCINTILLA(w); }
-static GtkWidget* _gtk_scintilla_new() { return gtk_scintilla_new(); }
-static void _gtk_scintilla_add_text (GtkScintilla *sci, guint length, const gchar *text) {
-  gtk_scintilla_add_text (GTK_SCINTILLA (sci), length, text);
-}
-static void _gtk_scintilla_insert_text (GtkScintilla *sci, guint pos, const gchar *text) {
-  gtk_scintilla_insert_text (GTK_SCINTILLA (sci), pos, text);
-}
+static inline guintptr toGstrUint(const char* s) { return (guintptr)s; }
 
+
+static ScintillaObject* toGtkScintilla(void* w) { return SCINTILLA(w); }
+static GtkWidget* _gtk_scintilla_new() { return scintilla_object_new(); }
+guintptr _gtk_scintilla_send_message(ScintillaObject *sci, guint msg, guintptr wParam, guintptr lParam)
+{
+  return scintilla_object_send_message(SCINTILLA (sci), msg, wParam, lParam);
+}
 
 #endif
