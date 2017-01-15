@@ -1,3 +1,3 @@
 all:
-	go build gtkscintilla/gtkscintilla.go
+	go build all.go
 
