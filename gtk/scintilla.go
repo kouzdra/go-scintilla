@@ -26,7 +26,12 @@ type arg   uint32
 type Scintilla struct {
 	gtk.Container
 	Styling *Styling
+	Handlers *Handlers
+	Id int
 }
+
+var sciMap = make (map [int] *Scintilla, 128)
+var lastId = 1
 
 func (v *Scintilla) toNativeScintilla() *C.ScintillaObject {
 	return C.toGtkScintilla(unsafe.Pointer(v.GWidget))
@@ -34,7 +39,11 @@ func (v *Scintilla) toNativeScintilla() *C.ScintillaObject {
 
 func NewScintilla() *Scintilla {
 	w := *gtk.WidgetFromNative(unsafe.Pointer(C._gtk_scintilla_new()))
-	sci := &Scintilla{gtk.Container{w}, nil}
+	sci := &Scintilla{Container:gtk.Container{w}, Handlers:&Handlers{}, Id: lastId}
+	lastId ++
+	sci.SetIdentifier (sci.Id)
+	sci.GetIdentifier ()
+	sciMap [sci.Id] = sci
 	sci.Styling = &Styling{sci}
 	return sci
 }
@@ -47,8 +56,21 @@ func (sci *Scintilla) sendMessage (msg uint, wParam arg, lParam arg) uint {
 }
 
 //export gtk_sci_notification_handler
-func gtk_sci_notification_handler(sci *C.ScintillaObject, id int, scn *C.SCNotification) {
-  log.Printf ("SCI NOTIFY: %d\n", scn.nmhdr.code);
+func gtk_sci_notification_handler(sciGtk *C.ScintillaObject, id int, scn *C.SCNotification) {
+	code := scn.nmhdr.code
+	sci := sciMap [id]
+	//log.Printf ("SCI NOTIFY: %d\n", code);
+	switch code {
+	case C.SCN_MODIFIED:
+		if h := sci.Handlers.OnModify; h != nil {
+			h (uint (scn.modificationType), Pos (scn.position), uint (scn.length), int (scn.linesAdded), "",
+				uint (scn.line), uint (scn.foldLevelNow), uint (scn.foldLevelPrev))
+		}
+	}
+}
+
+type Handlers struct {
+	OnModify func (uint, Pos, uint, int, string, uint, uint, uint)
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -63,6 +85,14 @@ func (sci *Scintilla) SetText (text string) {
 	ptr := C.CString(text)
 	defer cfree(ptr)
 	sci.sendMessage (C.SCI_SETTEXT, 0, gstring2arg (ptr))
+}
+
+func (sci *Scintilla) SetIdentifier(id int) {
+	sci.sendMessage (C.SCI_SETIDENTIFIER, arg (id), 0)
+}
+
+func (sci *Scintilla) GetIdentifier() int {
+	return int (sci.sendMessage (C.SCI_GETIDENTIFIER, 0, 0))
 }
 
 func (sci *Scintilla) SetLexer(lex uint) {

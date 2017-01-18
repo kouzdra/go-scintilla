@@ -7,7 +7,6 @@
 #define GTK
 #include <Scintilla.h>
 #include <ScintillaWidget.h>
-#include <stdio.h>
 
 /*static inline gchar** make_strings(int count) {
 	return (gchar**)malloc(sizeof(gchar*) * count);
