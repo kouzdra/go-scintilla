@@ -8,9 +8,10 @@ package scintilla
 import "C"
 import (
 	"unsafe"
-	"log"
+	//"log"
 	//"github.com/mattn/go-gtk/glib"
 	"github.com/mattn/go-gtk/gtk"
+	"github.com/kouzdra/go-scintilla/gtk/consts"
 )
 
 type Color uint32
@@ -42,7 +43,7 @@ func NewScintilla() *Scintilla {
 	sci := &Scintilla{Container:gtk.Container{w}, Handlers:&Handlers{}, Id: lastId}
 	lastId ++
 	sci.SetIdentifier (sci.Id)
-	sci.GetIdentifier ()
+	//sci.GetIdentifier ()
 	sciMap [sci.Id] = sci
 	sci.Styling = &Styling{sci}
 	return sci
@@ -51,7 +52,7 @@ func NewScintilla() *Scintilla {
 func (sci *Scintilla) sendMessage (msg uint, wParam arg, lParam arg) uint {
 	v := uint (C._gtk_scintilla_send_message(
 		sci.toNativeScintilla (), C.guint(msg), C.guintptr(uint (wParam)), C.guintptr(uint (lParam))))
-	log.Printf ("SCI: MSG=%d wP=%d lP=%d => %d", msg, wParam, lParam, v)
+	//log.Printf ("SCI: MSG=%d wP=%d lP=%d => %d", msg, wParam, lParam, v)
 	return v
 }
 
@@ -61,9 +62,10 @@ func gtk_sci_notification_handler(sciGtk *C.ScintillaObject, id int, scn *C.SCNo
 	sci := sciMap [id]
 	//log.Printf ("SCI NOTIFY: %d\n", code);
 	switch code {
-	case C.SCN_MODIFIED:
+	case consts.SCN_MODIFIED:
 		if h := sci.Handlers.OnModify; h != nil {
-			h (uint (scn.modificationType), Pos (scn.position), uint (scn.length), int (scn.linesAdded), "",
+			h (uint (scn.modificationType), Pos (scn.position), uint (scn.length), int (scn.linesAdded),
+				C.GoString (scn.text),
 				uint (scn.line), uint (scn.foldLevelNow), uint (scn.foldLevelPrev))
 		}
 	}
@@ -84,25 +86,25 @@ func (sci *Scintilla) GetCharAt(pos Pos) byte {
 func (sci *Scintilla) SetText (text string) {
 	ptr := C.CString(text)
 	defer cfree(ptr)
-	sci.sendMessage (C.SCI_SETTEXT, 0, gstring2arg (ptr))
+	sci.sendMessage (consts.SCI_SETTEXT, 0, gstring2arg (ptr))
 }
 
 func (sci *Scintilla) SetIdentifier(id int) {
-	sci.sendMessage (C.SCI_SETIDENTIFIER, arg (id), 0)
+	sci.sendMessage (consts.SCI_SETIDENTIFIER, arg (id), 0)
 }
 
 func (sci *Scintilla) GetIdentifier() int {
-	return int (sci.sendMessage (C.SCI_GETIDENTIFIER, 0, 0))
+	return int (sci.sendMessage (consts.SCI_GETIDENTIFIER, 0, 0))
 }
 
 func (sci *Scintilla) SetLexer(lex uint) {
-	sci.sendMessage (C.SCI_SETLEXER, arg (lex), 0)
+	sci.sendMessage (consts.SCI_SETLEXER, arg (lex), 0)
 }
 
 func (sci *Scintilla) SetLexerLanguage(lang string) {
 	ptr := C.CString(lang)
 	defer cfree(ptr)
-	sci.sendMessage (C.SCI_SETLEXER, 0, gstring2arg (ptr))
+	sci.sendMessage (consts.SCI_SETLEXER, 0, gstring2arg (ptr))
 }
 
 //----------------------------------- aux ----------------------------------
@@ -143,11 +145,11 @@ type Styling struct {
 }
 
 func (s *Styling) Start (pos Pos) {
-	s.sci.sendMessage (C.SCI_STARTSTYLING, arg (pos), 0)
+	s.sci.sendMessage (consts.SCI_STARTSTYLING, arg (pos), 0)
 }
 
 func (s *Styling) Set (length uint, style Style) {
-	s.sci.sendMessage (C.SCI_SETSTYLING, arg (length), arg (style))
+	s.sci.sendMessage (consts.SCI_SETSTYLING, arg (length), arg (style))
 }
 
 func (s *Styling) Range (style Style, bg, en Pos) {
@@ -156,53 +158,53 @@ func (s *Styling) Range (style Style, bg, en Pos) {
 }
 
 func (s *Styling) GetEnd () uint {
-	return s.sci.sendMessage (C.SCI_GETENDSTYLED, 0, 0)
+	return s.sci.sendMessage (consts.SCI_GETENDSTYLED, 0, 0)
 }
 
 func (s *Styling) ResetDefault () {
-	s.sci.sendMessage (C.SCI_STYLERESETDEFAULT, 0, 0)
+	s.sci.sendMessage (consts.SCI_STYLERESETDEFAULT, 0, 0)
 }
 
 func (s *Styling) SetFont (style Style, font string) {
-	ff := C.make_string (1024)
-	s.sci.sendMessage (C.SCI_STYLEGETFONT, arg (style), gstring2arg (ff))
-	log.Printf ("OLD FONT: \"%s\"\n", gostring (C.toGstr (ff)))
-	cfree (ff)
+	//ff := C.make_string (1024)
+	//s.sci.sendMessage (consts.SCI_STYLEGETFONT, arg (style), gstring2arg (ff))
+	//log.Printf ("OLD FONT: \"%s\"\n", gostring (C.toGstr (ff)))
+	//cfree (ff)
 
 	ptr := C.CString(font)
 	defer cfree(ptr)
-	s.sci.sendMessage (C.SCI_STYLESETFONT, arg (style), gstring2arg (ptr))
+	s.sci.sendMessage (consts.SCI_STYLESETFONT, arg (style), gstring2arg (ptr))
 }
 
 func (s *Styling) SetFg (style Style, color Color) {
-	s.sci.sendMessage (C.SCI_STYLESETFORE, arg (style), arg (color))
+	s.sci.sendMessage (consts.SCI_STYLESETFORE, arg (style), arg (color))
 }
 
 func (s *Styling) SetBg (style Style, color Color) {
-	s.sci.sendMessage (C.SCI_STYLESETBACK, arg (style), arg (color))
+	s.sci.sendMessage (consts.SCI_STYLESETBACK, arg (style), arg (color))
 }
 
 
 func (s *Styling) SetUnderline (style Style, u bool) {
 	var uu uint
 	if u { uu = 1 } else { uu = 0 }
-	s.sci.sendMessage (C.SCI_STYLESETUNDERLINE, arg (style), arg (uu))
+	s.sci.sendMessage (consts.SCI_STYLESETUNDERLINE, arg (style), arg (uu))
 }
 
 func (s *Styling) SetItalic (style Style, i bool) {
 	var ii uint
 	if i { ii = 1 } else { ii = 0 }
-	s.sci.sendMessage (C.SCI_STYLESETITALIC, arg (style), arg (ii))
+	s.sci.sendMessage (consts.SCI_STYLESETITALIC, arg (style), arg (ii))
 }
 
 func (s *Styling) SetBold (style Style, b bool) {
 	var bb uint
 	if b { bb = 1 } else { bb = 0 }
-	s.sci.sendMessage (C.SCI_STYLESETBOLD, arg (style), arg (bb))
+	s.sci.sendMessage (consts.SCI_STYLESETBOLD, arg (style), arg (bb))
 }
 
 func (s *Styling) GetAt(pos Pos) Style {
-	return Style (s.sci.sendMessage (C.SCI_GETSTYLEAT, arg (pos), 0))
+	return Style (s.sci.sendMessage (consts.SCI_GETSTYLEAT, arg (pos), 0))
 }
 
 
