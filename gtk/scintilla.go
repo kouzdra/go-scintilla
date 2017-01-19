@@ -8,11 +8,13 @@ package scintilla
 import "C"
 import (
 	"unsafe"
-	//"log"
+	"log"
 	//"github.com/mattn/go-gtk/glib"
 	"github.com/mattn/go-gtk/gtk"
 	"github.com/kouzdra/go-scintilla/gtk/consts"
 )
+
+var _ = log.Printf
 
 type Color uint32
 type Style uint32
@@ -64,8 +66,16 @@ func gtk_sci_notification_handler(sciGtk *C.ScintillaObject, id int, scn *C.SCNo
 	switch code {
 	case consts.SCN_MODIFIED:
 		if h := sci.Handlers.OnModify; h != nil {
-			h (uint (scn.modificationType), Pos (scn.position), uint (scn.length), int (scn.linesAdded),
-				C.GoString (scn.text),
+			length := uint (scn.length)
+			//log.Printf (">>> Length=%d\n", length)
+			var text string
+			if scn.text != nil {
+				text = C.GoStringN (scn.text, C.int (length))
+			}
+			//log.Printf (">>> Text=[%s]\n", text)
+				
+			h (uint (scn.modificationType), Pos (scn.position), length, int (scn.linesAdded),
+				text,
 				uint (scn.line), uint (scn.foldLevelNow), uint (scn.foldLevelPrev))
 		}
 	}
