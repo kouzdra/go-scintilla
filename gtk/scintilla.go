@@ -154,6 +154,10 @@ type Styling struct {
 	sci *Scintilla
 }
 
+func (s *Styling) Clear () {
+	s.sci.sendMessage (consts.SCI_CLEARDOCUMENTSTYLE, 0, 0)
+}
+
 func (s *Styling) Start (pos Pos) {
 	s.sci.sendMessage (consts.SCI_STARTSTYLING, arg (pos), 0)
 }
