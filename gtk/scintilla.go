@@ -20,12 +20,12 @@ type Color uint32
 type Style uint32
 type Pos   uint32
 
-type arg   uint32
+type Arg   uint32
 
 
 //----------------------------------- aux ----------------------------------
 
-func gstring2arg(s *C.char) arg { return arg (C.toGstrUint(s)) }
+func gstring2arg(s *C.char) Arg { return Arg (C.toGstrUint(s)) }
 func gostring(s *C.gchar) string { return C.GoString(C.toCstr(s)) }
 func cfree(s *C.char) { C.freeCstr(s) }
 
@@ -35,7 +35,8 @@ func cfree(s *C.char) { C.freeCstr(s) }
 
 type Scintilla struct {
 	gtk.Container
-	Styling *Styling
+	Indic    *   Indic
+	Styling  * Styling
 	Handlers *Handlers
 	Id int
 }
@@ -54,11 +55,12 @@ func NewScintilla() *Scintilla {
 	sci.SetIdentifier (sci.Id)
 	//sci.GetIdentifier ()
 	sciMap [sci.Id] = sci
+	sci.Indic   = &  Indic{sci}
 	sci.Styling = &Styling{sci}
 	return sci
 }
 
-func (sci *Scintilla) sendMessage (msg uint, wParam arg, lParam arg) uint {
+func (sci *Scintilla) SendMessage (msg uint, wParam Arg, lParam Arg) uint {
 	v := uint (C._gtk_scintilla_send_message(
 		sci.toNativeScintilla (), C.guint(msg), C.guintptr(uint (wParam)), C.guintptr(uint (lParam))))
 	//log.Printf ("SCI: MSG=%d wP=%d lP=%d => %d", msg, wParam, lParam, v)
@@ -95,31 +97,65 @@ type Handlers struct {
 //////////////////////////////////////////////////////////////////////////////
 
 func (sci *Scintilla) GetCharAt(pos Pos) byte {
-	return byte (sci.sendMessage (C.SCI_GETCHARAT, arg (pos), 0))
+	return byte (sci.SendMessage (C.SCI_GETCHARAT, Arg (pos), 0))
 }
 
 //------------------------------------------------------------
 
+func (sci *Scintilla) SetPhasesDraw(count int) {
+	sci.SendMessage (consts.SCI_SETPHASESDRAW, Arg (count), 0)
+}
+
+func (sci *Scintilla) GetPhasesDraw() int {
+	return int (sci.SendMessage (consts.SCI_GETPHASESDRAW, 0, 0))
+}
+
+//---
+
 func (sci *Scintilla) SetText (text string) {
 	ptr := C.CString(text)
 	defer cfree(ptr)
-	sci.sendMessage (consts.SCI_SETTEXT, 0, gstring2arg (ptr))
+	sci.SendMessage (consts.SCI_SETTEXT, 0, gstring2arg (ptr))
 }
 
+func (sci *Scintilla) GetTextLength() int {
+	return int (sci.SendMessage (consts.SCI_GETTEXTLENGTH, 0, 0))
+}
+
+func (sci *Scintilla) GetLength() int {
+	return int (sci.SendMessage (consts.SCI_GETLENGTH, 0, 0))
+}
+
+func (sci *Scintilla) GetLinesCount() int {
+	return int (sci.SendMessage (consts.SCI_GETLINECOUNT, 0, 0))
+}
+
+func (sci *Scintilla) LinesOnScreen() int {
+	return int (sci.SendMessage (consts.SCI_LINESONSCREEN, 0, 0))
+}
+
+func (sci *Scintilla) GetModify() bool {
+	return int (sci.SendMessage (consts.SCI_GETTEXTLENGTH, 0, 0)) != 0
+}
+
+//---
+
 func (sci *Scintilla) SetIdentifier(id int) {
-	sci.sendMessage (consts.SCI_SETIDENTIFIER, arg (id), 0)
+	sci.SendMessage (consts.SCI_SETIDENTIFIER, Arg (id), 0)
 }
 
 func (sci *Scintilla) GetIdentifier() int {
-	return int (sci.sendMessage (consts.SCI_GETIDENTIFIER, 0, 0))
+	return int (sci.SendMessage (consts.SCI_GETIDENTIFIER, 0, 0))
 }
 
+//---
+
 func (sci *Scintilla) SetLexer(lex uint) {
-	sci.sendMessage (consts.SCI_SETLEXER, arg (lex), 0)
+	sci.SendMessage (consts.SCI_SETLEXER, Arg (lex), 0)
 }
 
 func (sci *Scintilla) SetLexerLanguage(lang string) {
 	ptr := C.CString(lang)
 	defer cfree(ptr)
-	sci.sendMessage (consts.SCI_SETLEXER, 0, gstring2arg (ptr))
+	sci.SendMessage (consts.SCI_SETLEXER, 0, gstring2arg (ptr))
 }
