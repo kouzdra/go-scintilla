@@ -38,7 +38,6 @@ type Scintilla struct {
 	Indic    *   Indic
 	Styling  * Styling
 	Handlers *Handlers
-	Id int
 }
 
 var sciMap = make (map [int] *Scintilla, 128)
@@ -50,11 +49,12 @@ func (v *Scintilla) toNativeScintilla() *C.ScintillaObject {
 
 func NewScintilla() *Scintilla {
 	w := *gtk.WidgetFromNative(unsafe.Pointer(C._gtk_scintilla_new()))
-	sci := &Scintilla{Container:gtk.Container{w}, Handlers:&Handlers{}, Id: lastId}
+	id := lastId
+	sci := &Scintilla{Container:gtk.Container{w}, Handlers:&Handlers{}}
 	lastId ++
-	sci.SetIdentifier (sci.Id)
+	sci.SetIdentifier (id)
 	//sci.GetIdentifier ()
-	sciMap [sci.Id] = sci
+	sciMap [id] = sci
 	sci.Indic   = &  Indic{sci}
 	sci.Styling = &Styling{sci}
 	return sci
