@@ -140,6 +140,12 @@ func (sci *Scintilla) GetModify() bool {
 
 //---
 
+func (sci *Scintilla) GetCurrentPos() Pos {
+	return Pos (sci.SendMessage (consts.SCI_GETCURRENTPOS, 0, 0))
+}
+
+//---
+
 func (sci *Scintilla) SetIdentifier(id int) {
 	sci.SendMessage (consts.SCI_SETIDENTIFIER, Arg (id), 0)
 }
