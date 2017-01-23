@@ -6,13 +6,11 @@ package scintilla
 // #include "../../../mattn/go-gtk/gtk/gtk.go.h"
 // #include "scintilla.go.h"
 import "C"
-import (
-	"unsafe"
-	"log"
-	//"github.com/mattn/go-gtk/glib"
-	"github.com/mattn/go-gtk/gtk"
-	"github.com/kouzdra/go-scintilla/gtk/consts"
-)
+import "unsafe"
+import "log"
+// import "github.com/mattn/go-gtk/glib"
+import "github.com/mattn/go-gtk/gtk"
+import "github.com/kouzdra/go-scintilla/gtk/consts"
 
 var _ = log.Printf
 
@@ -25,8 +23,13 @@ type Arg   uint32
 
 //----------------------------------- aux ----------------------------------
 
+func    bool2arg(b bool) Arg {
+	if b { return Arg (1) } else { return Arg (0) }
+}
+
 func gstring2arg(s *C.char) Arg { return Arg (C.toGstrUint(s)) }
 func gostring(s *C.gchar) string { return C.GoString(C.toCstr(s)) }
+func cstring(s string) *C.char { return C.CString(s) }
 func cfree(s *C.char) { C.freeCstr(s) }
 
 //-----------------------------------------------------------------------
@@ -96,12 +99,6 @@ type Handlers struct {
 
 //////////////////////////////////////////////////////////////////////////////
 
-func (sci *Scintilla) GetCharAt(pos Pos) byte {
-	return byte (sci.SendMessage (C.SCI_GETCHARAT, Arg (pos), 0))
-}
-
-//------------------------------------------------------------
-
 func (sci *Scintilla) SetPhasesDraw(count int) {
 	sci.SendMessage (consts.SCI_SETPHASESDRAW, Arg (count), 0)
 }
@@ -110,7 +107,12 @@ func (sci *Scintilla) GetPhasesDraw() int {
 	return int (sci.SendMessage (consts.SCI_GETPHASESDRAW, 0, 0))
 }
 
-//---
+//------------------------------------------------------------
+
+func (sci *Scintilla) GetCharAt(pos Pos) byte {
+	return byte (sci.SendMessage (C.SCI_GETCHARAT, Arg (pos), 0))
+}
+
 
 func (sci *Scintilla) SetText (text string) {
 	ptr := C.CString(text)

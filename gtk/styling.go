@@ -48,21 +48,15 @@ func (s *Styling) SetBg (style Style, color Color) {
 
 
 func (s *Styling) SetUnderline (style Style, u bool) {
-	var uu uint
-	if u { uu = 1 } else { uu = 0 }
-	s.sci.SendMessage (consts.SCI_STYLESETUNDERLINE, Arg (style), Arg (uu))
+	s.sci.SendMessage (consts.SCI_STYLESETUNDERLINE, Arg (style), bool2arg (u))
 }
 
 func (s *Styling) SetItalic (style Style, i bool) {
-	var ii uint
-	if i { ii = 1 } else { ii = 0 }
-	s.sci.SendMessage (consts.SCI_STYLESETITALIC, Arg (style), Arg (ii))
+	s.sci.SendMessage (consts.SCI_STYLESETITALIC, Arg (style), bool2arg (i))
 }
 
 func (s *Styling) SetBold (style Style, b bool) {
-	var bb uint
-	if b { bb = 1 } else { bb = 0 }
-	s.sci.SendMessage (consts.SCI_STYLESETBOLD, Arg (style), Arg (bb))
+	s.sci.SendMessage (consts.SCI_STYLESETBOLD, Arg (style), bool2arg (b))
 }
 
 func (s *Styling) GetAt(pos Pos) Style {

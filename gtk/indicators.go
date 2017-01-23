@@ -8,9 +8,7 @@ type Indic struct {
 }
 
 func (i *Indic) SetUnder (indic uint, u bool) {
-	var uu int
-	if u { uu = 1 } else { uu = 0 }
-	i.Sci.SendMessage (consts.SCI_INDICSETUNDER, Arg (indic), Arg (uu))
+	i.Sci.SendMessage (consts.SCI_INDICSETUNDER, Arg (indic), bool2arg (u))
 }
 
 func (i *Indic) GetUnder (indic uint) bool {
