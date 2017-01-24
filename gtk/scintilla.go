@@ -27,8 +27,12 @@ func    bool2arg(b bool) Arg {
 	if b { return Arg (1) } else { return Arg (0) }
 }
 
+func make_string (count uint) *C.char { return C.make_string (C.int (count)) }
 func gstring2arg(s *C.char) Arg { return Arg (C.toGstrUint(s)) }
-func gostring(s *C.gchar) string { return C.GoString(C.toCstr(s)) }
+func gostring(s *C.gchar) string { return gocstring(C.toCstr(s)) }
+func gocstring(s *C.char) string { return C.GoString(s) }
+func gostringN(s *C.gchar, n int) string { return gocstringN(C.toCstr(s), n) }
+func gocstringN(s *C.char, n int) string { return C.GoStringN(s, C.int (n)) }
 func cstring(s string) *C.char { return C.CString(s) }
 func cfree(s *C.char) { C.freeCstr(s) }
 
@@ -119,33 +123,6 @@ func (sci *Scintilla) SetText (text string) {
 	defer cfree(ptr)
 	sci.SendMessage (consts.SCI_SETTEXT, 0, gstring2arg (ptr))
 }
-
-func (sci *Scintilla) GetTextLength() int {
-	return int (sci.SendMessage (consts.SCI_GETTEXTLENGTH, 0, 0))
-}
-
-func (sci *Scintilla) GetLength() int {
-	return int (sci.SendMessage (consts.SCI_GETLENGTH, 0, 0))
-}
-
-func (sci *Scintilla) GetLinesCount() int {
-	return int (sci.SendMessage (consts.SCI_GETLINECOUNT, 0, 0))
-}
-
-func (sci *Scintilla) LinesOnScreen() int {
-	return int (sci.SendMessage (consts.SCI_LINESONSCREEN, 0, 0))
-}
-
-func (sci *Scintilla) GetModify() bool {
-	return int (sci.SendMessage (consts.SCI_GETTEXTLENGTH, 0, 0)) != 0
-}
-
-//---
-
-func (sci *Scintilla) GetCurrentPos() Pos {
-	return Pos (sci.SendMessage (consts.SCI_GETCURRENTPOS, 0, 0))
-}
-
 //---
 
 func (sci *Scintilla) SetIdentifier(id int) {

@@ -8,11 +8,7 @@
 #include <Scintilla.h>
 #include <ScintillaWidget.h>
 
-/*static inline gchar** make_strings(int count) {
-	return (gchar**)malloc(sizeof(gchar*) * count);
-}
-
-static inline void destroy_strings(gchar** strings) {
+/*static inline void destroy_strings(gchar** strings) {
 	free(strings);
 }
 
