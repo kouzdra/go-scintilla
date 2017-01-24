@@ -42,7 +42,6 @@ func cfree(s *C.char) { C.freeCstr(s) }
 
 type Scintilla struct {
 	gtk.Container
-	Styling  * Styling
 	Handlers *Handlers
 }
 
@@ -61,7 +60,6 @@ func NewScintilla() *Scintilla {
 	sci.SetIdentifier (id)
 	//sci.GetIdentifier ()
 	sciMap [id] = sci
-	sci.Styling = &Styling{sci}
 	return sci
 }
 

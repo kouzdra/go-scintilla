@@ -3,63 +3,59 @@ package scintilla
 import "C"
 import "github.com/kouzdra/go-scintilla/gtk/consts"
 
-type Styling struct {
-	sci *Scintilla
+func (sci *Scintilla) StyleClear () {
+	sci.SendMessage (consts.SCI_CLEARDOCUMENTSTYLE, 0, 0)
 }
 
-func (s *Styling) Clear () {
-	s.sci.SendMessage (consts.SCI_CLEARDOCUMENTSTYLE, 0, 0)
+func (sci *Scintilla) StyleStart (pos Pos) {
+	sci.SendMessage (consts.SCI_STARTSTYLING, Arg (pos), 0)
 }
 
-func (s *Styling) Start (pos Pos) {
-	s.sci.SendMessage (consts.SCI_STARTSTYLING, Arg (pos), 0)
+func (sci *Scintilla) StyleSet (length uint, style Style) {
+	sci.SendMessage (consts.SCI_SETSTYLING, Arg (length), Arg (style))
 }
 
-func (s *Styling) Set (length uint, style Style) {
-	s.sci.SendMessage (consts.SCI_SETSTYLING, Arg (length), Arg (style))
+func (sci *Scintilla) StyleRange (style Style, bg, en Pos) {
+	sci.StyleStart (bg)
+	sci.StyleSet (uint (int (en)-int (bg)), style)
 }
 
-func (s *Styling) Range (style Style, bg, en Pos) {
-	s.Start (bg)
-	s.Set (uint (int (en)-int (bg)), style)
+func (sci *Scintilla) StyleGetEnd () uint {
+	return sci.SendMessage (consts.SCI_GETENDSTYLED, 0, 0)
 }
 
-func (s *Styling) GetEnd () uint {
-	return s.sci.SendMessage (consts.SCI_GETENDSTYLED, 0, 0)
+func (sci *Scintilla) StyleResetDefault () {
+	sci.SendMessage (consts.SCI_STYLERESETDEFAULT, 0, 0)
 }
 
-func (s *Styling) ResetDefault () {
-	s.sci.SendMessage (consts.SCI_STYLERESETDEFAULT, 0, 0)
-}
-
-func (s *Styling) SetFont (style Style, font string) {
+func (sci *Scintilla) StyleSetFont (style Style, font string) {
 	ptr := C.CString(font)
 	defer cfree(ptr)
-	s.sci.SendMessage (consts.SCI_STYLESETFONT, Arg (style), gstring2arg (ptr))
+	sci.SendMessage (consts.SCI_STYLESETFONT, Arg (style), gstring2arg (ptr))
 }
 
-func (s *Styling) SetFg (style Style, color Color) {
-	s.sci.SendMessage (consts.SCI_STYLESETFORE, Arg (style), Arg (color))
+func (sci *Scintilla) StyleSetFg (style Style, color Color) {
+	sci.SendMessage (consts.SCI_STYLESETFORE, Arg (style), Arg (color))
 }
 
-func (s *Styling) SetBg (style Style, color Color) {
-	s.sci.SendMessage (consts.SCI_STYLESETBACK, Arg (style), Arg (color))
+func (sci *Scintilla) StyleSetBg (style Style, color Color) {
+	sci.SendMessage (consts.SCI_STYLESETBACK, Arg (style), Arg (color))
 }
 
 
-func (s *Styling) SetUnderline (style Style, u bool) {
-	s.sci.SendMessage (consts.SCI_STYLESETUNDERLINE, Arg (style), bool2arg (u))
+func (sci *Scintilla) StyleSetUnderline (style Style, u bool) {
+	sci.SendMessage (consts.SCI_STYLESETUNDERLINE, Arg (style), bool2arg (u))
 }
 
-func (s *Styling) SetItalic (style Style, i bool) {
-	s.sci.SendMessage (consts.SCI_STYLESETITALIC, Arg (style), bool2arg (i))
+func (sci *Scintilla) StyleSetItalic (style Style, i bool) {
+	sci.SendMessage (consts.SCI_STYLESETITALIC, Arg (style), bool2arg (i))
 }
 
-func (s *Styling) SetBold (style Style, b bool) {
-	s.sci.SendMessage (consts.SCI_STYLESETBOLD, Arg (style), bool2arg (b))
+func (sci *Scintilla) StyleSetBold (style Style, b bool) {
+	sci.SendMessage (consts.SCI_STYLESETBOLD, Arg (style), bool2arg (b))
 }
 
-func (s *Styling) GetAt(pos Pos) Style {
-	return Style (s.sci.SendMessage (consts.SCI_GETSTYLEAT, Arg (pos), 0))
+func (sci *Scintilla) StyleGetAt(pos Pos) Style {
+	return Style (sci.SendMessage (consts.SCI_GETSTYLEAT, Arg (pos), 0))
 }
 
