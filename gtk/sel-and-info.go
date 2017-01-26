@@ -28,6 +28,18 @@ func (sci *Scintilla) GetCurrentPos() Pos {
 	return Pos (sci.SendMessage (consts.SCI_GETCURRENTPOS, 0, 0))
 }
 
+func (sci *Scintilla) SetCurrentPos(pos Pos) {
+	sci.SendMessage (consts.SCI_SETCURRENTPOS, Arg (pos), 0)
+}
+
+func (sci *Scintilla) GotoPos(pos Pos) {
+	sci.SendMessage (consts.SCI_GOTOPOS, Arg (pos), 0)
+}
+
+func (sci *Scintilla) FindColumn (line, col int) Pos {
+	return Pos (sci.SendMessage (consts.SCI_FINDCOLUMN, Arg (line), Arg (col)))
+}
+
 func (sci *Scintilla) GetSelText() string {
 	length := sci.SendMessage (consts.SCI_GETSELTEXT, 0, 0)
 	if length == 0 { return "" }
