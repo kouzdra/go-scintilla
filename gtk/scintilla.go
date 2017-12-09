@@ -1,7 +1,7 @@
 package scintilla
 
 // #cgo pkg-config: gmodule-2.0 gtk+-2.0
-// #cgo LDFLAGS: -lm -lstdc++ -L/home/msk/local/lib -lscintilla
+// #cgo LDFLAGS: ${SRCDIR}/../scintilla/bin/scintilla.a -lm -lstdc++ 
 // #cgo CFLAGS: -I${SRCDIR}/../scintilla/include
 // #include "../../../mattn/go-gtk/gtk/gtk.go.h"
 // #include "scintilla.go.h"
@@ -53,27 +53,31 @@ func (v *Scintilla) toNativeScintilla() *C.ScintillaObject {
 }
 
 func NewScintilla() *Scintilla {
-	w := *gtk.WidgetFromNative(unsafe.Pointer(C._gtk_scintilla_new()))
+        nat_w := C._gtk_scintilla_new()
+	w := *gtk.WidgetFromNative(unsafe.Pointer(nat_w))
 	id := lastId
 	sci := &Scintilla{Container:gtk.Container{w}, Handlers:&Handlers{}}
 	lastId ++
 	sci.SetIdentifier (id)
 	//sci.GetIdentifier ()
 	sciMap [id] = sci
+	//log.Printf ("SCI NEW: %d == %d\n", sci.GetIdentifier (), id);
+	//log.Printf ("SCI SEND: id=%x\n", sci.toNativeScintilla ());
 	return sci
 }
 
 func (sci *Scintilla) SendMessage (msg uint, wParam Arg, lParam Arg) uint {
+	//log.Printf ("SCI SEND: id=%x\n", sci.toNativeScintilla ());
+	//log.Printf ("SCI: MSG=%d wP=%d lP=%d => /d", msg, wParam, lParam/*, v*/)
 	v := uint (C._gtk_scintilla_send_message(
 		sci.toNativeScintilla (), C.guint(msg), C.guintptr(uint (wParam)), C.guintptr(uint (lParam))))
-	//log.Printf ("SCI: MSG=%d wP=%d lP=%d => %d", msg, wParam, lParam, v)
 	return v
 }
 
 //export gtk_sci_notification_handler
-func gtk_sci_notification_handler(sciGtk *C.ScintillaObject, id int, scn *C.SCNotification) {
+func gtk_sci_notification_handler(sciGtk *C.ScintillaObject, id C.int, scn *C.SCNotification) {
 	code := scn.nmhdr.code
-	sci := sciMap [id]
+	sci := sciMap [int (id)]
 	//log.Printf ("SCI NOTIFY: %d\n", code);
 	switch code {
 	case consts.SCN_MODIFIED:
