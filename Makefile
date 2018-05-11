@@ -1,7 +1,7 @@
 GOCDEFSDIR = ../go-tools
 GOCDEFS = $(GOCDEFSDIR)/gocdefs
 
-all:: gtk/consts/consts.go
+all:: consts
 	go build all.go
 
 install::
@@ -9,10 +9,10 @@ install::
 	cd scintilla/gtk; make
 
 
-$(CGODEFS): $(GOCDEFS).go
+$(GOCDEFS): $(GOCDEFS).go
 	$(MAKE) -C $(GOCDEFSDIR) gocdefs
 
-consts: gtk/consts/consts.go
+consts: $(GOCDEFS) gtk/consts/consts.go
 
 gtk/consts/consts.go::
 	cat $@.tpl >$@
