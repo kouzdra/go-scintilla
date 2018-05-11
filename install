@@ -1,0 +1,1 @@
+tar xzf scintilla.tar.gz && cd scintilla/gtk && make
