@@ -4,6 +4,11 @@ GOCDEFS = $(GOCDEFSDIR)/gocdefs
 all:: gtk/consts/consts.go
 	go build all.go
 
+install::
+	tar xzf scintilla.tar.gz
+	cd scintilla/gtk; make
+
+
 $(CGODEFS): $(GOCDEFS).go
 	$(MAKE) -C $(GOCDEFSDIR) gocdefs
 
