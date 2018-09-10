@@ -4,6 +4,9 @@ GOCDEFS = $(GOCDEFSDIR)/gocdefs
 all:: consts
 	go build all.go
 
+clean:
+	go clean all.go
+
 install::
 	tar xzf scintilla.tar.gz
 	cd scintilla/gtk; make
